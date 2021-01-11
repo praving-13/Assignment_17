@@ -1,0 +1,269 @@
+classify the Size_Categorie using SVM
+
+month	month of the year: 'jan' to 'dec'
+day	day of the week: 'mon' to 'sun'
+FFMC	FFMC index from the FWI system: 18.7 to 96.20
+DMC	DMC index from the FWI system: 1.1 to 291.3
+DC	DC index from the FWI system: 7.9 to 860.6
+ISI	ISI index from the FWI system: 0.0 to 56.10
+temp	temperature in Celsius degrees: 2.2 to 33.30
+RH	relative humidity in %: 15.0 to 100
+wind	wind speed in km/h: 0.40 to 9.40
+rain	outside rain in mm/m2 : 0.0 to 6.4
+Size_Categorie 	the burned area of the forest ( Small , Large)
+
+Ans-
+data  <- read.csv("forestfires.csv") 
+data$X_trans <- ln(data$X +1)
+data$Y_trans <- ln(data$Y +1)
+weekdays <- c('fri', 'tue',  'mon', 'wed', 'thu', 'sun')
+data$day_type <- NA
+data$day<-as.character(data$day)
+data$day_type =ifelse(data$day %in% weekdays, 'no_sat', 'sat')
+ggpairs(data)
+
+More Transformation
+data$area <-ln(data$area+1)
+data$rain <- ln(data$rain +1)
+data$ISI<- ln(data$ISI +1)
+
+
+
+other method
+
+# Read the data
+FF <- read.csv(file.choose())
+View(FF)
+class(FF)
+## [1] "data.frame"
+str(FF)
+## 'data.frame':    517 obs. of  31 variables:
+##  $ month        : Factor w/ 12 levels "apr","aug","dec",..: 8 11 11 8 8 2 2 2 12 12 ...
+##  $ day          : Factor w/ 7 levels "fri","mon","sat",..: 1 6 3 1 4 4 2 2 6 3 ...
+##  $ FFMC         : num  86.2 90.6 90.6 91.7 89.3 92.3 92.3 91.5 91 92.5 ...
+##  $ DMC          : num  26.2 35.4 43.7 33.3 51.3 ...
+##  $ DC           : num  94.3 669.1 686.9 77.5 102.2 ...
+##  $ ISI          : num  5.1 6.7 6.7 9 9.6 14.7 8.5 10.7 7 7.1 ...
+##  $ temp         : num  8.2 18 14.6 8.3 11.4 22.2 24.1 8 13.1 22.8 ...
+##  $ RH           : int  51 33 33 97 99 29 27 86 63 40 ...
+##  $ wind         : num  6.7 0.9 1.3 4 1.8 5.4 3.1 2.2 5.4 4 ...
+##  $ rain         : num  0 0 0 0.2 0 0 0 0 0 0 ...
+##  $ area         : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ dayfri       : int  1 0 0 1 0 0 0 0 0 0 ...
+##  $ daymon       : int  0 0 0 0 0 0 1 1 0 0 ...
+##  $ daysat       : int  0 0 1 0 0 0 0 0 0 1 ...
+##  $ daysun       : int  0 0 0 0 1 1 0 0 0 0 ...
+##  $ daythu       : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ daytue       : int  0 1 0 0 0 0 0 0 1 0 ...
+##  $ daywed       : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ monthapr     : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ monthaug     : int  0 0 0 0 0 1 1 1 0 0 ...
+##  $ monthdec     : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ monthfeb     : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ monthjan     : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ monthjul     : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ monthjun     : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ monthmar     : int  1 0 0 1 1 0 0 0 0 0 ...
+##  $ monthmay     : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ monthnov     : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ monthoct     : int  0 1 1 0 0 0 0 0 0 0 ...
+##  $ monthsep     : int  0 0 0 0 0 0 0 0 1 1 ...
+##  $ size_category: Factor w/ 2 levels "large","small": 2 2 2 2 2 2 2 2 2 2 ...
+# The area value has lots of zeros
+
+hist(FF$area)
+rug(FF$area)
+
+
+# Transform the Area value to Y 
+
+FF1 <- mutate(FF, y = log(area + 1))  # default is to the base e, y is lower case
+hist(FF1$y)
+
+
+summary(FF) # Confirms on the different scale and demands normalizing the data.
+##      month      day          FFMC            DMC              DC       
+##  aug    :184   fri:85   Min.   :18.70   Min.   :  1.1   Min.   :  7.9  
+##  sep    :172   mon:74   1st Qu.:90.20   1st Qu.: 68.6   1st Qu.:437.7  
+##  mar    : 54   sat:84   Median :91.60   Median :108.3   Median :664.2  
+##  jul    : 32   sun:95   Mean   :90.64   Mean   :110.9   Mean   :547.9  
+##  feb    : 20   thu:61   3rd Qu.:92.90   3rd Qu.:142.4   3rd Qu.:713.9  
+##  jun    : 17   tue:64   Max.   :96.20   Max.   :291.3   Max.   :860.6  
+##  (Other): 38   wed:54                                                  
+##       ISI              temp             RH              wind      
+##  Min.   : 0.000   Min.   : 2.20   Min.   : 15.00   Min.   :0.400  
+##  1st Qu.: 6.500   1st Qu.:15.50   1st Qu.: 33.00   1st Qu.:2.700  
+##  Median : 8.400   Median :19.30   Median : 42.00   Median :4.000  
+##  Mean   : 9.022   Mean   :18.89   Mean   : 44.29   Mean   :4.018  
+##  3rd Qu.:10.800   3rd Qu.:22.80   3rd Qu.: 53.00   3rd Qu.:4.900  
+##  Max.   :56.100   Max.   :33.30   Max.   :100.00   Max.   :9.400  
+##                                                                   
+##       rain              area             dayfri           daymon      
+##  Min.   :0.00000   Min.   :   0.00   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.00000   1st Qu.:   0.00   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.00000   Median :   0.52   Median :0.0000   Median :0.0000  
+##  Mean   :0.02166   Mean   :  12.85   Mean   :0.1644   Mean   :0.1431  
+##  3rd Qu.:0.00000   3rd Qu.:   6.57   3rd Qu.:0.0000   3rd Qu.:0.0000  
+##  Max.   :6.40000   Max.   :1090.84   Max.   :1.0000   Max.   :1.0000  
+##                                                                       
+##      daysat           daysun           daythu          daytue      
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.0000   Median :0.000   Median :0.0000  
+##  Mean   :0.1625   Mean   :0.1838   Mean   :0.118   Mean   :0.1238  
+##  3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:0.000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.000   Max.   :1.0000  
+##                                                                    
+##      daywed          monthapr          monthaug         monthdec      
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.0000   Min.   :0.00000  
+##  1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.00000  
+##  Median :0.0000   Median :0.00000   Median :0.0000   Median :0.00000  
+##  Mean   :0.1044   Mean   :0.01741   Mean   :0.3559   Mean   :0.01741  
+##  3rd Qu.:0.0000   3rd Qu.:0.00000   3rd Qu.:1.0000   3rd Qu.:0.00000  
+##  Max.   :1.0000   Max.   :1.00000   Max.   :1.0000   Max.   :1.00000  
+##                                                                       
+##     monthfeb          monthjan           monthjul         monthjun      
+##  Min.   :0.00000   Min.   :0.000000   Min.   :0.0000   Min.   :0.00000  
+##  1st Qu.:0.00000   1st Qu.:0.000000   1st Qu.:0.0000   1st Qu.:0.00000  
+##  Median :0.00000   Median :0.000000   Median :0.0000   Median :0.00000  
+##  Mean   :0.03868   Mean   :0.003868   Mean   :0.0619   Mean   :0.03288  
+##  3rd Qu.:0.00000   3rd Qu.:0.000000   3rd Qu.:0.0000   3rd Qu.:0.00000  
+##  Max.   :1.00000   Max.   :1.000000   Max.   :1.0000   Max.   :1.00000  
+##                                                                         
+##     monthmar         monthmay           monthnov           monthoct      
+##  Min.   :0.0000   Min.   :0.000000   Min.   :0.000000   Min.   :0.00000  
+##  1st Qu.:0.0000   1st Qu.:0.000000   1st Qu.:0.000000   1st Qu.:0.00000  
+##  Median :0.0000   Median :0.000000   Median :0.000000   Median :0.00000  
+##  Mean   :0.1044   Mean   :0.003868   Mean   :0.001934   Mean   :0.02901  
+##  3rd Qu.:0.0000   3rd Qu.:0.000000   3rd Qu.:0.000000   3rd Qu.:0.00000  
+##  Max.   :1.0000   Max.   :1.000000   Max.   :1.000000   Max.   :1.00000  
+##                                                                          
+##     monthsep      size_category
+##  Min.   :0.0000   large:139    
+##  1st Qu.:0.0000   small:378    
+##  Median :0.0000                
+##  Mean   :0.3327                
+##  3rd Qu.:1.0000                
+##  Max.   :1.0000                
+## 
+# Prediction of Forest fires requires only prediction from 
+# temperature, rain, relative humidity and wind speed
+
+# Apply Normalization technique to the whole dataset :
+
+normalize<-function(x){
+  return ( (x-min(x))/(max(x)-min(x)))
+}
+FF$temp = normalize(FF$temp)
+FF$RH   = normalize(FF$RH)
+FF$wind = normalize(FF$wind)
+FF$rain = normalize(FF$rain)
+# We need to tweak this as a classification problem.lets base out the Size using this criteria :
+
+attach(FF)
+# Data Partition 
+set.seed(123)
+ind <- sample(2, nrow(FF), replace = TRUE, prob = c(0.7,0.3))
+FF_train <- FF[ind==1,]
+FF_test  <- FF[ind==2,]
+# to train model
+# e1071 package from LIBSVM library
+# SVMlight algorithm klar package 
+
+# kvsm() function uses gaussian RBF kernel 
+
+# Building model 
+
+
+model1<-ksvm(size_category~temp+rain+wind+RH, 
+             data= FF_train,kernel = "vanilladot")
+##  Setting default kernel parameters
+model1
+## Support Vector Machine object of class "ksvm" 
+## 
+## SV type: C-svc  (classification) 
+##  parameter : cost C = 1 
+## 
+## Linear (vanilla) kernel function. 
+## 
+## Number of Support Vectors : 199 
+## 
+## Objective Function Value : -184 
+## Training error : 0.247978
+Area_pred <- predict(model1, FF_test)
+
+table(Area_pred,FF_test$size_category)
+##          
+## Area_pred large small
+##     large     0     0
+##     small    47    99
+agreement <- Area_pred == FF_test$size_category
+table(agreement)
+## agreement
+## FALSE  TRUE 
+##    47    99
+prop.table(table(agreement))
+## agreement
+##     FALSE      TRUE 
+## 0.3219178 0.6780822
+# Different types of kernels 
+# "rbfdot", "polydot", "tanhdot", "vanilladot", "laplacedot", 
+# "besseldot", "anovadot", "splinedot", "matrix"
+
+# kernel = rfdot 
+model_rfdot<-ksvm(size_category~temp+rain+wind+RH, 
+                  data= FF_train,kernel = "rbfdot")
+pred_rfdot<-predict(model_rfdot,newdata=FF_test)
+mean(pred_rfdot==FF_test$size_category) # 68.41
+## [1] 0.6849315
+# kernel = vanilladot
+model_vanilla<-ksvm(size_category~temp+rain+wind+RH, 
+                    data= FF_train,kernel = "vanilladot")
+##  Setting default kernel parameters
+pred_vanilla<-predict(model_vanilla,newdata=FF_test)
+mean(pred_vanilla==FF_test$size_category) # 67.80
+## [1] 0.6780822
+# kernal = besseldot
+model_besseldot<-ksvm(size_category~temp+rain+wind+RH, 
+                      data= FF_train,kernel = "besseldot")
+##  Setting default kernel parameters
+pred_bessel<-predict(model_besseldot,newdata=FF_test)
+mean(pred_bessel==FF_test$size_category) # 67.80
+## [1] 0.6780822
+# kernel = polydot
+
+model_poly<-ksvm(size_category~temp+rain+wind+RH, 
+                 data= FF_train,kernel = "polydot")
+##  Setting default kernel parameters
+pred_poly<-predict(model_poly,newdata = FF_test)
+mean(pred_poly==FF_test$size_category) # 67.80
+## [1] 0.6780822
+
+model <- lm(area~ wind + X_trans + DMC^2+ ISI^2 + RH^2 + day_type*wind + day_type*ISI, data = data)
+summary(model)
+## 
+## Call:
+## lm(formula = area ~ wind + X_trans + DMC^2 + ISI^2 + RH^2 + day_type * 
+##     wind + day_type * ISI, data = data)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.8070 -1.0870 -0.5348  0.8633  5.5446 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(>|t|)  
+## (Intercept)       1.128952   0.455873   2.476   0.0136 *
+## wind              0.084763   0.037551   2.257   0.0244 *
+## X_trans           0.167135   0.131675   1.269   0.2049  
+## DMC               0.002462   0.001079   2.282   0.0229 *
+## ISI              -0.282115   0.156761  -1.800   0.0725 .
+## RH               -0.006921   0.003895  -1.777   0.0762 .
+## day_typesat      -1.083182   0.821630  -1.318   0.1880  
+## wind:day_typesat -0.131085   0.098999  -1.324   0.1861  
+## ISI:day_typesat   0.792310   0.351067   2.257   0.0244 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 1.386 on 508 degrees of freedom
+## Multiple R-squared:  0.03293,    Adjusted R-squared:  0.0177 
+## F-statistic: 2.162 on 8 and 508 DF,  p-value: 0.029

@@ -1,0 +1,299 @@
+1) Prepare a classification model using SVM for salary data 
+
+Data Description:
+
+age -- age of a person
+workclass	-- A work class is a grouping of work 
+education	-- Education of an individuals	
+maritalstatus -- Marital status of an individulas	
+occupation	 -- occupation of an individuals
+relationship -- 	
+race --  Race of an Individual
+sex --  Gender of an Individual
+capitalgain --  profit received from the sale of an investment	
+capitalloss	-- A decrease in the value of a capital asset
+hoursperweek -- number of hours work per week	
+native -- Native of an individual
+Salary -- salary of an individual
+
+
+Ans-
+# Data(Train)
+train_sal <- read.csv(file.choose())
+str(train_sal)
+## 'data.frame':    30161 obs. of  14 variables:
+##  $ age          : int  39 50 38 53 28 37 49 52 31 42 ...
+##  $ workclass    : Factor w/ 7 levels " Federal-gov",..: 6 5 3 3 3 3 3 5 3 3 ...
+##  $ education    : Factor w/ 16 levels " 10th"," 11th",..: 10 10 12 2 10 13 7 12 13 10 ...
+##  $ educationno  : int  13 13 9 7 13 14 5 9 14 13 ...
+##  $ maritalstatus: Factor w/ 7 levels " Divorced"," Married-AF-spouse",..: 5 3 1 3 3 3 4 3 5 3 ...
+##  $ occupation   : Factor w/ 14 levels " Adm-clerical",..: 1 4 6 6 10 4 8 4 10 4 ...
+##  $ relationship : Factor w/ 6 levels " Husband"," Not-in-family",..: 2 1 2 1 6 6 2 1 2 1 ...
+##  $ race         : Factor w/ 5 levels " Amer-Indian-Eskimo",..: 5 5 5 3 3 5 3 5 5 5 ...
+##  $ sex          : Factor w/ 2 levels " Female"," Male": 2 2 2 2 1 1 1 2 1 2 ...
+##  $ capitalgain  : int  2174 0 0 0 0 0 0 0 14084 5178 ...
+##  $ capitalloss  : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ hoursperweek : int  40 13 40 40 40 40 16 45 50 40 ...
+##  $ native       : Factor w/ 40 levels " Cambodia"," Canada",..: 38 38 38 38 5 38 22 38 38 38 ...
+##  $ Salary       : Factor w/ 2 levels " <=50K"," >50K": 1 1 1 1 1 1 1 2 2 2 ...
+View(train_sal)
+train_sal$educationno <- as.factor(train_sal$educationno)
+class(train_sal)
+## [1] "data.frame"
+# Data(Test)
+test_sal <- read.csv(file.choose())
+str(test_sal)
+## 'data.frame':    15060 obs. of  14 variables:
+##  $ age          : int  25 38 28 44 34 63 24 55 65 36 ...
+##  $ workclass    : Factor w/ 7 levels " Federal-gov",..: 3 3 2 3 3 5 3 3 3 1 ...
+##  $ education    : Factor w/ 16 levels " 10th"," 11th",..: 2 12 8 16 1 15 16 6 12 10 ...
+##  $ educationno  : int  7 9 12 10 6 15 10 4 9 13 ...
+##  $ maritalstatus: Factor w/ 7 levels " Divorced"," Married-AF-spouse",..: 5 3 3 3 5 3 5 3 3 3 ...
+##  $ occupation   : Factor w/ 14 levels " Adm-clerical",..: 7 5 11 7 8 10 8 3 7 1 ...
+##  $ relationship : Factor w/ 6 levels " Husband"," Not-in-family",..: 4 1 1 1 2 1 5 1 1 1 ...
+##  $ race         : Factor w/ 5 levels " Amer-Indian-Eskimo",..: 3 5 5 3 5 5 5 5 5 5 ...
+##  $ sex          : Factor w/ 2 levels " Female"," Male": 2 2 2 2 2 2 1 2 2 2 ...
+##  $ capitalgain  : int  0 0 0 7688 0 3103 0 0 6418 0 ...
+##  $ capitalloss  : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ hoursperweek : int  40 50 40 40 30 32 40 10 40 40 ...
+##  $ native       : Factor w/ 40 levels " Cambodia"," Canada",..: 38 38 38 38 38 38 38 38 38 38 ...
+##  $ Salary       : Factor w/ 2 levels " <=50K"," >50K": 1 1 2 2 1 2 1 1 2 1 ...
+View(test_sal)
+test_sal$educationno <- as.factor(test_sal$educationno)
+class(test_sal)
+## [1] "data.frame"
+#Visualization 
+# Plot and ggplot 
+ggplot(data=train_sal,aes(x=train_sal$Salary, y = train_sal$age, fill = train_sal$Salary)) +
+  geom_boxplot() +
+  ggtitle("Box Plot")
+
+
+plot(train_sal$workclass,train_sal$Salary)
+
+
+plot(train_sal$education,train_sal$Salary)
+
+
+plot(train_sal$educationno,train_sal$Salary)
+
+
+plot(train_sal$maritalstatus,train_sal$Salary)
+
+
+plot(train_sal$occupation,train_sal$Salary)
+
+
+plot(train_sal$relationship,train_sal$Salary)
+
+
+plot(train_sal$race,train_sal$Salary)
+
+
+plot(train_sal$sex,train_sal$Salary)
+
+
+ggplot(data=train_sal,aes(x=train_sal$Salary, y = train_sal$capitalgain, fill = train_sal$Salary)) +
+  geom_boxplot() +
+  ggtitle("Box Plot")
+
+
+ggplot(data=train_sal,aes(x=train_sal$Salary, y = train_sal$capitalloss, fill = train_sal$Salary)) +
+  geom_boxplot() +
+  ggtitle("Box Plot")
+
+
+ggplot(data=train_sal,aes(x=train_sal$Salary, y = train_sal$hoursperweek, fill = train_sal$Salary)) +
+  geom_boxplot() +
+  ggtitle("Box Plot")
+
+
+plot(train_sal$native,train_sal$Salary)
+
+
+#Density Plot 
+
+ggplot(data=train_sal,aes(x = train_sal$age, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("Age - Density Plot")
+## $title
+## [1] "Age - Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$workclass, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("Workclass Density Plot")
+## $title
+## [1] "Workclass Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$education, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("education Density Plot")
+## $title
+## [1] "education Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$educationno, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("educationno Density Plot")
+## $title
+## [1] "educationno Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$maritalstatus, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("maritalstatus Density Plot")
+## $title
+## [1] "maritalstatus Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$occupation, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+## Warning: Groups with fewer than two data points have been dropped.
+## Warning: Groups with fewer than two data points have been dropped.
+
+
+ggtitle("occupation Density Plot")
+## $title
+## [1] "occupation Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$sex, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("sex Density Plot")
+## $title
+## [1] "sex Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$relationship, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("Relationship Density Plot")
+## $title
+## [1] "Relationship Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$race, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("Race Density Plot")
+## $title
+## [1] "Race Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$capitalgain, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("Capitalgain Density Plot")
+## $title
+## [1] "Capitalgain Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$capitalloss, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("Capitalloss Density Plot")
+## $title
+## [1] "Capitalloss Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$hoursperweek, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+
+
+ggtitle("Hoursperweek Density Plot")
+## $title
+## [1] "Hoursperweek Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+ggplot(data=train_sal,aes(x = train_sal$native, fill = train_sal$Salary)) +
+  geom_density(alpha = 0.9, color = 'Violet')
+## Warning: Groups with fewer than two data points have been dropped.
+
+
+ggtitle("native Density Plot")
+## $title
+## [1] "native Density Plot"
+## 
+## attr(,"class")
+## [1] "labels"
+# Building model 
+
+
+model1<-ksvm(train_sal$Salary~., 
+             data= train_sal, kernel = "vanilladot")
+##  Setting default kernel parameters
+model1
+## Support Vector Machine object of class "ksvm" 
+## 
+## SV type: C-svc  (classification) 
+##  parameter : cost C = 1 
+## 
+## Linear (vanilla) kernel function. 
+## 
+## Number of Support Vectors : 10599 
+## 
+## Objective Function Value : -10535.76 
+## Training error : 0.15162
+Salary_prediction <- predict(model1, test_sal)
+
+table(Salary_prediction,test_sal$Salary)
+##                  
+## Salary_prediction  <=50K  >50K
+##             <=50K  10601  1554
+##             >50K     759  2146
+agreement <- Salary_prediction == test_sal$Salary
+table(agreement)
+## agreement
+## FALSE  TRUE 
+##  2313 12747
+prop.table(table(agreement))
+## agreement
+##     FALSE      TRUE 
+## 0.1535857 0.8464143
+# Different types of kernels 
+# "rbfdot", "polydot", "tanhdot", "vanilladot", "laplacedot", 
+# "besseldot", "anovadot", "splinedot", "matrix"
+
+# kernel = rfdot 
+model_rfdot<-ksvm(train_sal$Salary~., 
+                  data= train_sal,kernel = "rbfdot")
+pred_rfdot<-predict(model_rfdot,newdata=test_sal)
+mean(pred_rfdot==test_sal$Salary) # 85.19
+## [1] 0.851992
+# kernel = vanilladot
+model_vanilla<-ksvm(train_sal$Salary~., 
+                    data= train_sal,kernel = "vanilladot")
+##  Setting default kernel parameters
+pred_vanilla<-predict(model_vanilla,newdata=test_sal)
+mean(pred_vanilla==test_sal$Salary) # 84.64
+## [1] 0.8464143
